@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>吃豆人游戏</title>
+    <!-- 添加 TensorFlow.js 和 PoseNet -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+    <style>
+        .camera-container {
+            position: relative;
+            margin: 10px 0;
+            width: 320px;
+            height: 240px;
+        }
+        #video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+        }
+        #cameraCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border: 1px solid #333;
+        }
+        .control-panel {
+            margin: 10px 0;
+        }
+        .voice-history {
+            width: 320px;
+            height: 100px;
+            margin: 10px 0;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+        /* 添加游戏画布的样式 */
+        #gameCanvas {
+            background: #000;
+            margin: 10px 0;
+            display: block;
+            width: 400px;
+            height: 400px;
+        }
+        /* 添加按钮样式 */
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 20px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        /* 美化控制面板 */
+        .control-panel {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .control-panel div {
+            margin: 10px 0;
+        }
+        
+        /* 美化滑动条和颜色选择器 */
+        input[type="range"] {
+            width: 200px;
+            height: 5px;
+            border-radius: 5px;
+        }
+        
+        input[type="color"] {
+            width: 50px;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* 美化状态显示 */
+        #gameStatus, #progressText {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        #progressBar {
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- 游戏画布 -->
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- 控制面板 -->
+    <div class="control-panel">
+        <div>
+            <label>移动速度:</label>
+            <input type="range" id="speedControl" min="0.01" max="0.1" step="0.01" value="0.02">
+            <span id="speedValue">0.02</span>
+        </div>
+        <div>
+            <label>豆子密度:</label>
+            <input type="range" id="densityControl" min="20" max="60" step="10" value="40">
+            <span id="densityValue">正常</span>
+        </div>
+        <div>
+            <label>主角颜色:</label>
+            <input type="color" id="colorPicker" value="#ffff00">
+        </div>
+    </div>
+
+    <!-- 游戏控制按钮 -->
+    <div>
+        <button id="playButton">▶ 开始</button>
+        <button id="restartButton" disabled>🔄 重新开始</button>
+        <button id="voiceButton">🎤 语音控制</button>
+        <button id="poseButton">📷 姿势控制</button>
+    </div>
+
+    <!-- 游戏状态 -->
+    <div>
+        <p>状态: <span id="gameStatus">空闲</span></p>
+        <p>进度: <span id="progressText">0%</span></p>
+        <div id="progressBar" style="width: 0%"></div>
+    </div>
+
+    <!-- 摄像头预览区域 -->
+    <div class="camera-container">
+        <video id="video" playsinline></video>
+        <canvas id="cameraCanvas"></canvas>
+    </div>
+
+    <!-- 语音控制历史记录 -->
+    <textarea id="voiceHistory" class="voice-history" readonly></textarea>
+
+    <!-- 游戏脚本 -->
+    <script src="game.js"></script>
+</body>
+</html>
